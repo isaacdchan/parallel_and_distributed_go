@@ -7,7 +7,7 @@ import (
 	"net"
 )
 
-var conns = map[net.Addr]net.Conn{}
+var conns = map[string]net.Conn{}
 
 func main() {
 	port := flag.String("port number", "8000", "Please specify the port number")
@@ -20,7 +20,7 @@ func main() {
 	}
 
 	defer dstream.Close()
-	conns = make(map[net.Addr]net.Conn, *numClients)
+	conns = make(map[string]net.Conn, *numClients)
 
 	for {
 		conn, err := dstream.Accept()
@@ -31,7 +31,7 @@ func main() {
 		}
 
 		defer conn.Close()
-		addr := conn.RemoteAddr()
+		addr := conn.RemoteAddr().String()
 		conns[addr] = conn
 
 		go handle(conn)
@@ -40,24 +40,21 @@ func main() {
 
 func handle(client net.Conn) {
 	for {
-		fmt.Println("Reading")
 		data, _, err := bufio.NewReader(client).ReadLine()
-		fmt.Println("Done Reading")
 	
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
 	
-		s := string(data)
-		s += "\n"
-		fmt.Println("String: " + s)
+		msg := string(data)
+		addr := client.RemoteAddr().String()
+		outgoingMsg := []byte(addr + ": " + msg + "\n")
 	
-		for _, conn := range conns {
-			fmt.Println("Writing!")
-			conn.Write([]byte(s))
-			fmt.Println("Done Writing!")
+		for connAddr, conn := range conns {
+			if connAddr != addr {
+				conn.Write(outgoingMsg)
+			}
 		}
-		fmt.Println(4)
 	}
 }

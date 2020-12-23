@@ -38,28 +38,24 @@ func main() {
 func handleOutgoing(serv net.Conn) {
 	for {
 		reader := bufio.NewReader(os.Stdin)
-		fmt.Print("Enter text: ")
+		// fmt.Print("Enter text: ")
 		s, _ := reader.ReadString('\n')
 		ba := []byte(s)
 
-		fmt.Println("Writing")
 		serv.Write(ba)
-		fmt.Println("Done Writing")
 	}
 }
 
 func handleIncoming(serv net.Conn) {
 	for {
-		fmt.Println("Reading")
 		data, _, err := bufio.NewReader(serv).ReadLine()
-		fmt.Println("Done Reading")
 
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
 
-		s := string(data)
-		fmt.Println("String: " + s)
+		msg := string(data)
+		fmt.Println("\n" + msg)
 	}
 }

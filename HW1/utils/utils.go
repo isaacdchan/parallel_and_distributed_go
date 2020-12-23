@@ -38,3 +38,20 @@ func IntArrayToByteArray(ia []int) (ba []byte) {
 
 	return ba
 }
+
+// ByteArrayToIntArray fuck
+func ByteArrayToIntArray(ba []byte) (ia []int) {
+	ba = ba[:len(ba) -1]
+	s := string(ba)
+	sa := strings.Split(s, " ")
+
+	ia = make([]int, len(sa))
+	for i, val := range sa {
+		intVal, err := strconv.Atoi(val)
+		if (err == nil) {
+			ia[i] = intVal
+		}
+	}
+	
+	return ia
+}
